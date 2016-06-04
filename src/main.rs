@@ -15,7 +15,7 @@ implement_vertex!(Vertex, position, color);
 
 #[derive(Debug)]
 enum Command {
-    Pen(u16),
+    PenColor(u16),
     Up,
     Down,
     North(u32),
@@ -30,8 +30,8 @@ fn process_command(command: String) -> Command {
     match split.next() {
         None => {
             match elem.as_ref() {
-                "U" => Command::Up,
-                "D" => Command::Down,
+                "UP" => Command::Up,
+                "DOWN" => Command::Down,
                 _ => panic!("Invalid command")
             }
         }
@@ -41,11 +41,11 @@ fn process_command(command: String) -> Command {
                 Err(_) => panic!("Param should be a valid integer"),
             };
             match elem.as_ref() {
-                "P" => Command::Pen(param as u16),
-                "N" => Command::North(param),
-                "S" => Command::South(param),
-                "E" => Command::East(param),
-                "W" => Command::West(param),
+                "COLOR" => Command::PenColor(param as u16),
+                "NORTH" => Command::North(param),
+                "SOUTH" => Command::South(param),
+                "EAST" => Command::East(param),
+                "WEST" => Command::West(param),
                 _ => panic!("Invalid command")
             }
         }
@@ -129,7 +129,7 @@ fn main() {
                 }
                 current_pos = new_pos;
             },
-            Command::Pen(color_id) => {
+            Command::PenColor(color_id) => {
                 current_pos = Vertex {
                     position: current_pos.position,
                     color: colors[color_id as usize]
