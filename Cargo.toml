@@ -1,5 +1,5 @@
 [package]
-name = "turtle-parser"
+name = "turtle"
 version = "0.1.0"
 authors = ["Jeremie Jost <jeremiejost@gmail.com>"]
 
