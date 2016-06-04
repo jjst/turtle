@@ -8,9 +8,10 @@ use glium::Surface;
 #[derive(Copy,Clone)]
 struct Vertex {
     position: [f32; 2],
+    color: [f32; 3],
 }
 
-implement_vertex!(Vertex, position);
+implement_vertex!(Vertex, position, color);
 
 #[derive(Debug)]
 enum Command {
@@ -65,8 +66,11 @@ fn main() {
         #version 140
 
         in vec2 position;
+        in vec3 color;
+        out vec3 col;
 
         void main() {
+            col = color;
             gl_Position = vec4(position, 0.0, 1.0);
         }
 
@@ -75,16 +79,30 @@ fn main() {
     let fragment_shader_src = r#"
         #version 140
 
+        in vec3 col;
         out vec4 color;
 
         void main() {
-            color = vec4(1.0, 0.0, 0.0, 1.0);
+            color = vec4(col, 1.0);
         }
 
     "#;
 
+    let colors = [
+        [0.0, 0.0, 0.0], // black
+        [1.0, 1.0, 1.0], // white
+        [1.0, 0.0, 0.0], // red
+        [0.0, 1.0, 0.0], // green
+        [0.0, 0.0, 1.0], // blue
+        [0.0, 1.0, 1.0], // cyan
+        [1.0, 0.0, 1.0], // purple
+        [1.0, 1.0, 0.0], // yellow
+    ];
     let mut vertices = Vec::new();
-    let mut current_pos = Vertex { position: [0.0, 0.0] };
+    let mut current_pos = Vertex {
+        position: [0.0, 0.0],
+        color: colors[0],
+    };
     let mut pen_down = false;
     for command in commands {
         match command {
@@ -102,7 +120,8 @@ fn main() {
                     position: [
                         current_pos.position[0] + (dx as f32) * 0.01,
                         current_pos.position[1] + (dy as f32) * 0.01
-                    ]
+                    ],
+                    color: current_pos.color
                 };
                 if pen_down {
                     vertices.push(current_pos);
@@ -110,7 +129,12 @@ fn main() {
                 }
                 current_pos = new_pos;
             },
-            _ => ()//panic!("not yet implemented")
+            Command::Pen(color_id) => {
+                current_pos = Vertex {
+                    position: current_pos.position,
+                    color: colors[color_id as usize]
+                };
+            }
         }
     }
 
